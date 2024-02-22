@@ -1,6 +1,8 @@
 # New
 secrets
 logs
+terraform/.terraform
+terraform/.terraform.lock.hcl
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
