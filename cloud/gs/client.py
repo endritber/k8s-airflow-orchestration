@@ -1,8 +1,9 @@
-#!./venv/bin/python
+#!../../venv/bin/python
 import os
 import json
 from typing import Optional, TYPE_CHECKING, Union
 from path import Path
+from pathlib import Path as PathLib
 
 if TYPE_CHECKING:
   from google.auth.credentials import Credentials
@@ -55,10 +56,43 @@ class Client:
       "size": blob.size,
       "updated": blob.updated,
       "content_type": blob.content_type,
-    }       
+    }   
 
-
+  def _download_blob(self, cloud_path: Path, disk_path: Union[str, os.PathLike]) -> PathLib:
+    bucket = self.client.bucket(cloud_path.bucket)
+    blob = bucket.get_blob(cloud_path.blob)
+    if disk_path: path_to_download = PathLib(disk_path)
+    else: path_to_download = PathLib(blob.split('/')[-1])
+    blob.download_to_filename(path_to_download)
+    return disk_path
+  
+  def _exists(self, cloud_path: Path):
+    print(cloud_path.bucket, cloud_path.blob)
+    if not cloud_path.blob:
+      try:
+        next(self.client.bucket(cloud_path.bucket).list_blobs())
+        return True
+      except:
+        return False
+      
+    bucket = self.client.bucket(cloud_path.bucket)
+    blob = bucket.blob(cloud_path.blob)
+    if blob.exists():
+      return True
+    else:
+      prefix = cloud_path.blob
+      if prefix and not prefix.endswith("/"):
+        prefix += "/"
+      f = bucket.list_blobs(max_results=1, prefix=prefix)
+      if bool(list(f)):
+        return True
+      return False
+  
 if __name__ == '__main__':
   credentials = get_credentials()
   client = Client(credentials=credentials, project='sdg-data-engineering')
-  print(client._get_metadata(Path(cloud_path='gs://bucket-dropzone-example/text.csv')))
+  cloud_path = Path(cloud_path='gs://bucket-dropzone-example/input/train_base.csv')
+  print(client._get_metadata(cloud_path=cloud_path))
+
+  # client._download_file(cloud_path=cloud_path, disk_path='test_base.csv')
+  print(client._exists(cloud_path=cloud_path))
