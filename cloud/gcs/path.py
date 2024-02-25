@@ -28,7 +28,7 @@ class GCSPath:
   
   @property
   def blob(self) -> str:
-    key = self._no_prefix
+    key = '/'.join(self._no_prefix.split('/')[1:])
     if key.startswith("/"):
       key = key[1:]
 

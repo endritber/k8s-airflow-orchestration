@@ -2,7 +2,7 @@
 import os
 import json
 from typing import Optional, TYPE_CHECKING, Union
-from path import Path
+from path import GCSPath
 from pathlib import Path as PathLib
 
 if TYPE_CHECKING:
@@ -44,7 +44,7 @@ class Client:
       except DefaultCredentialsError:
         raise DefaultCredentialsError('credentials not found')
     
-  def _get_metadata(self, cloud_path: Path):
+  def _get_metadata(self, cloud_path: GCSPath):
     bucket = self.client.bucket(cloud_path.bucket)
     blob = bucket.blob(cloud_path.blob)
     print(f'metadata on bucket: {bucket}, blob: {blob}')
@@ -58,7 +58,7 @@ class Client:
       "content_type": blob.content_type,
     }   
 
-  def _download_blob(self, cloud_path: Path, disk_path: Union[str, os.PathLike]) -> PathLib:
+  def _download_blob_todisk(self, cloud_path: GCSPath, disk_path: Union[str, os.PathLike]) -> PathLib:
     bucket = self.client.bucket(cloud_path.bucket)
     blob = bucket.get_blob(cloud_path.blob)
     if disk_path: path_to_download = PathLib(disk_path)
@@ -66,7 +66,7 @@ class Client:
     blob.download_to_filename(path_to_download)
     return disk_path
   
-  def _exists(self, cloud_path: Path):
+  def _exists(self, cloud_path: GCSPath):
     if not cloud_path.blob:
       try:
         next(self.client.bucket(cloud_path.bucket).list_blobs())
@@ -88,8 +88,8 @@ class Client:
 if __name__ == '__main__':
   credentials = get_credentials()
   client = Client(credentials=credentials, project='sdg-data-engineering')
-  cloud_path = Path(cloud_path='gs://bucket-dropzone-example/input/train_base.csv')
+  cloud_path = GCSPath(cloud_path='gs://bucket-dropzone-example/input/train_base.csv')
   print(client._get_metadata(cloud_path=cloud_path))
 
-  # client._download_file(cloud_path=cloud_path, disk_path='test_base.csv')
+  # client._download_blob_todisk(cloud_path=cloud_path, disk_path='data.csv')
   print(client._exists(cloud_path=cloud_path))
