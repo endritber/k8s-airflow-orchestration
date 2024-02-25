@@ -67,18 +67,15 @@ class Client:
     return disk_path
   
   def _exists(self, cloud_path: Path):
-    print(cloud_path.bucket, cloud_path.blob)
     if not cloud_path.blob:
       try:
         next(self.client.bucket(cloud_path.bucket).list_blobs())
         return True
-      except:
-        return False
+      except: return False
       
     bucket = self.client.bucket(cloud_path.bucket)
     blob = bucket.blob(cloud_path.blob)
-    if blob.exists():
-      return True
+    if blob.exists(): return True
     else:
       prefix = cloud_path.blob
       if prefix and not prefix.endswith("/"):
