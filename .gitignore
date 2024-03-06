@@ -3,6 +3,7 @@ secrets
 logs
 terraform/.terraform
 terraform/.terraform.lock.hcl
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
