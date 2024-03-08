@@ -3,5 +3,3 @@ kind: ConfigMap
 metadata:
   namespace: airflow
   name: airflow-variables
-data:
-  TESTENV: "TESTENV"

@@ -9,12 +9,10 @@ nodes:
         nodeRegistration:
           kubeletExtraArgs:
             node-labels: "node=worker_1"
-        extraMounts:
-          - hostPath: ./data
-        containerPath: /tmp/data
     extraMounts:
-      - null
-      - hostPath: /Users/tin/fun/dataengineering/dags
+      - hostPath: ./data
+        containerPath: /tmp/data
+      - hostPath: "/Users/tin/fun/dataengineering/dags"
         containerPath: /tmp/dags
   - role: worker
     kubeadmConfigPatches:
@@ -23,24 +21,20 @@ nodes:
         nodeRegistration:
           kubeletExtraArgs:
             node-labels: "node=worker_2"
-        extraMounts:
-          - hostPath: ./data
-        containerPath: /tmp/data
     extraMounts:
-      - null
-      - hostPath: /Users/tin/fun/dataengineering/dags
+      - hostPath: ./data
+        containerPath: /tmp/data
+      - hostPath: "/Users/tin/fun/dataengineering/dags"
         containerPath: /tmp/dags
   - role: worker
     kubeadmConfigPatches:
-      - |-
+      - |
         kind: JoinConfiguration
         nodeRegistration:
           kubeletExtraArgs:
             node-labels: "node=worker_3"
-        extraMounts:
-          - hostPath: ./data
-        containerPath: /tmp/data
     extraMounts:
-      - null
-      - hostPath: /Users/tin/fun/dataengineering/dags
+      - hostPath: ./data
+        containerPath: /tmp/data
+      - hostPath: "/Users/tin/fun/dataengineering/dags"
         containerPath: /tmp/dags

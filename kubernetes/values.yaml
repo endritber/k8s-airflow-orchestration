@@ -429,7 +429,6 @@ fernetKey: ~
 fernetKeySecretName: ~
 
 # Flask secret key for Airflow Webserver: `[webserver] secret_key` in airflow.cfg
-webserverSecretKey: ~
 webserverSecretKeySecretName: my-webserver-secret
 
 # In order to use kerberos you need to create secret containing the keytab file
@@ -2438,7 +2437,6 @@ podTemplate: ~
 dags:
   # Where dags volume will be mounted. Works for both persistence and gitSync.
   # If not specified, dags mount path will be set to $AIRFLOW_HOME/dags
-  mountPath: ~
   persistence:
     # Annotations for dags PVC
     annotations: {}
@@ -2452,8 +2450,6 @@ dags:
     accessMode: ReadWriteOnce
     ## the name of an existing PVC to use
     existingClaim: airflow-dags
-    ## optional subpath for dag volume mount
-    subPath: ~
   gitSync:
     enabled: false
 
@@ -2566,11 +2562,11 @@ logs:
     # Enable persistent volume for storing logs
     enabled: false
     # Volume size for logs
-    size: 100Gi
+    size: 20Gi
     # Annotations for the logs PVC
     annotations: {}
     # If using a custom storageClass, pass name here
-    storageClassName:
+    storageClassName: airflow-logs
     ## the name of an existing PVC to use
     existingClaim:
 
