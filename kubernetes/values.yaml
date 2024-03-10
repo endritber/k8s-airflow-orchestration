@@ -65,10 +65,10 @@ containerLifecycleHooks: {}
 airflowHome: /opt/airflow
 
 # Default airflow repository -- overridden by all the specific images below
-defaultAirflowRepository: airflow-custom
+defaultAirflowRepository: apache/airflow
 
 # Default airflow tag to deploy
-defaultAirflowTag: "1.0.0"
+defaultAirflowTag: "2.8.2"
 
 # Default airflow digest. If specified, it takes precedence over tag
 defaultAirflowDigest: ~
@@ -370,7 +370,6 @@ extraEnv: ~
 extraEnvFrom: |
   - configMapRef:
       name: 'airflow-variables'
-
 # eg:
 # extraEnvFrom: |
 #   - secretRef:
@@ -429,7 +428,8 @@ fernetKey: ~
 fernetKeySecretName: ~
 
 # Flask secret key for Airflow Webserver: `[webserver] secret_key` in airflow.cfg
-webserverSecretKeySecretName: my-webserver-secret
+webserverSecretKey: ~
+webserverSecretKeySecretName: ~
 
 # In order to use kerberos you need to create secret containing the keytab file
 # The secret name should follow naming convention of the application where resources are
@@ -622,11 +622,11 @@ workers:
     # Volume size for worker StatefulSet
     size: 100Gi
     # If using a custom storageClass, pass name ref to all statefulSets here
-    storageClassName: airflow-logs
+    storageClassName:
     # Execute init container to chown log directory.
     # This is currently only needed in kind, due to usage
     # of local-path provisioner.
-    fixPermissions: true
+    fixPermissions: false
     # Annotations to add to worker volumes
     annotations: {}
     # Detailed default security context for persistence for container level
@@ -2437,11 +2437,12 @@ podTemplate: ~
 dags:
   # Where dags volume will be mounted. Works for both persistence and gitSync.
   # If not specified, dags mount path will be set to $AIRFLOW_HOME/dags
+  mountPath: ~
   persistence:
     # Annotations for dags PVC
     annotations: {}
     # Enable persistent volume for storing dags
-    enabled: true
+    enabled: false
     # Volume size for dags
     size: 1Gi
     # If using a custom storageClass, pass name here
@@ -2449,7 +2450,9 @@ dags:
     # access mode of the persistent volume
     accessMode: ReadWriteOnce
     ## the name of an existing PVC to use
-    existingClaim: airflow-dags
+    existingClaim:
+    ## optional subpath for dag volume mount
+    subPath: ~
   gitSync:
     enabled: false
 
@@ -2562,11 +2565,11 @@ logs:
     # Enable persistent volume for storing logs
     enabled: false
     # Volume size for logs
-    size: 20Gi
+    size: 100Gi
     # Annotations for the logs PVC
     annotations: {}
     # If using a custom storageClass, pass name here
-    storageClassName: airflow-logs
+    storageClassName:
     ## the name of an existing PVC to use
     existingClaim:
 

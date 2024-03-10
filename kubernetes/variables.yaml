@@ -3,3 +3,5 @@ kind: ConfigMap
 metadata:
   namespace: airflow
   name: airflow-variables
+data:
+  NAMESPACE: "airflow"
