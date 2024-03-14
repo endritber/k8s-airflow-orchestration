@@ -1,4 +1,6 @@
 # New
+k8s/data
+dags/scheduler
 secrets
 logs
 terraform/.terraform
