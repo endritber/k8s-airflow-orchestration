@@ -10,10 +10,10 @@ nodes:
           kubeletExtraArgs:
             node-labels: "node=worker_1"
     extraMounts:
-      - hostPath: /Users/tin/fun/k8s-airflow-orchestration/k8s/data
-        containerPath: /tmp/data
-      - hostPath: /Users/tin/fun/k8s-airflow-orchestration/dags
-        containerPath: /tmp/dags
+      - hostPath: ~
+        containerPath: ~
+      - hostPath: ~
+        containerPath: ~
   - role: worker
     kubeadmConfigPatches:
       - |
@@ -22,10 +22,10 @@ nodes:
           kubeletExtraArgs:
             node-labels: "node=worker_2"
     extraMounts:
-      - hostPath: /Users/tin/fun/k8s-airflow-orchestration/k8s/data
-        containerPath: /tmp/data
-      - hostPath: /Users/tin/fun/k8s-airflow-orchestration/dags
-        containerPath: /tmp/dags
+      - hostPath: ~
+        containerPath: ~
+      - hostPath: ~
+        containerPath: ~
   - role: worker
     kubeadmConfigPatches:
       - |
@@ -34,7 +34,7 @@ nodes:
           kubeletExtraArgs:
             node-labels: "node=worker_3"
     extraMounts:
-      - hostPath: /Users/tin/fun/k8s-airflow-orchestration/k8s/data
-        containerPath: /tmp/data
-      - hostPath: /Users/tin/fun/k8s-airflow-orchestration/dags
-        containerPath: /tmp/dags
+      - hostPath: ~
+        containerPath: ~
+      - hostPath: ~
+        containerPath: ~
