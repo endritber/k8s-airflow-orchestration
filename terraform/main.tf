@@ -1,75 +1,51 @@
 terraform {
   cloud {
-    organization = "sdg-data-engineering"
+    organization = "cp-saa-local"
 
     workspaces {
-      name = "sdg-data-engineering-workspace"
+      name = "cp-saa-local"
     }
   }
-  
 }
 
-terraform {
-    required_providers {
-        snowflake = {
-            source  = "Snowflake-Labs/snowflake"
-            version = "0.39.0"
-        }
-    }
-}
-
-#===========#
-# VARIABLES #
-#===========#
-
-variable "gcp_project_id" {
+variable "project_id" {
   type = string
-  description = "Google Cloud project ID"
-}
-
-variable "gcp_credentials" {
-  type = string
-  sensitive = true
-  description = "Google Cloud service account credentials"
+  description = "GC Project ID"
 }
 
 variable "gcp_region" {
   type = string
-  description = "Google Cloud region"
+  description = "GC Region"
 }
 
-variable "snowflake_password" {
+variable "gcp_sa_storage" {
   type = string
-  description = "Snowflake password"
+  description = "GCS Credentials"
 }
-
-#===========#
-# PROVIDERS #
-#===========#
 
 provider "google" {
-  project = var.gcp_project_id
-  credentials = var.gcp_credentials
+  project = var.project_id
+  credentials = var.gcp_sa_storage
   region = var.gcp_region
 }
 
-provider "snowflake" {
-    account = "kpkkcjs-uu46006"
-    # region="us-central1"
-    username = "endritberisha"
-    password = var.snowflake_password
-    role = "accountadmin"
-}
+# provider "snowflake" {
+#     account = "kpkkcjs-uu46006"
+#     # region="us-central1"
+#     username = "endritberisha"
+#     password = var.snowflake_password
+#     role = "accountadmin"
+# }
 
-#===========#
-# RESOURCES #
-#===========#
+# #===========#
+# # RESOURCES #
+# #===========#
 
-resource "snowflake_database" "database" {
-  name      = "DEMO"
-}
+# resource "snowflake_database" "database" {
+#   name      = "DEMO"
+# }
 
-resource "snowflake_schema" "schema" {
-  database  = snowflake_database.database.name
-  name      = "SDG"
-}
+# resource "snowflake_schema" "schema" {
+#   database  = snowflake_database.database.name
+#   name      = "SDG"
+# }
