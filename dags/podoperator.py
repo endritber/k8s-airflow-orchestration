@@ -27,7 +27,7 @@ with DAG(
 ) as dag:
     KubernetesPodOperator(
       namespace=namespace,
-      image="test-airflow-image:latest",
+      image="localhost:5000/hello-world:latest",
       image_pull_policy='Never',
       name="airflow-test-pod",
       task_id="task-one",
