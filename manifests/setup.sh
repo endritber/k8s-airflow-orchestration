@@ -11,7 +11,7 @@ if [ -z ${LOCAL_DATA_PATH+x} ];
 fi
 
 handle_error() {
-    echo "Error: $1"
+    echo "Error: $1" && exit 1;
 }
 
 if ! yq -i "
@@ -37,7 +37,13 @@ if ! yq -i "
 fi
 
 if ! kind create cluster --name airflow-cluster --config kind-cluster.yaml; then
-    handle_error 
+    echo "Error: $1"
+    echo "Deleting..."
+    docker rm --force airflow-cluster-control-plane
+    docker rm --force airflow-cluster-worker
+    docker rm --force airflow-cluster-worker2
+    docker rm --force airflow-cluster-worker3
+    echo "`./setup.sh` again" && exit 1;
 fi
 
 kubectl create namespace airflow
