@@ -4,6 +4,7 @@ from airflow.configuration import conf
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
     KubernetesPodOperator,
 )
+from kubernetes.client import models as k8s
 
 default_args = {
   "owner": "endritberisha",
@@ -26,12 +27,13 @@ with DAG(
 ) as dag:
     KubernetesPodOperator(
       namespace=namespace,
-      image="localhost:5000/ubuntu",
+      image="test-airflow-image:latest",
+      image_pull_policy='Never',
       name="airflow-test-pod",
       task_id="task-one",
-      in_cluster=in_cluster,  # if set to true, will look in the cluster, if false, looks for file
-      cluster_context="airflow-cluster",  # is ignored when in_cluster is set to True
+      in_cluster=True,
       is_delete_operator_pod=True,
       get_logs=True,
-      image_pull_policy="Never"
+      on_finish_action="delete_pod"
   )
+  
