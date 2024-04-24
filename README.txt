@@ -1,1 +1,0 @@
-setting up Airflow on Kubernetes using the KubernetesPodOperator instead of custom ones. The KubernetesPodOperator ensures that each job in Airflow is completely isolated, allowing for different dependencies since everything runs in containers.
