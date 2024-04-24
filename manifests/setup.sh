@@ -1,57 +1,62 @@
 #!/usr/bin/env bash
 
-if [ -z ${LOCAL_DAGS_PATH+x} ];
-  then echo "LOCAL_DAGS_PATH is unset" && exit 1;
-  else echo "LOCAL_DAGS_PATH is set to '$LOCAL_DAGS_PATH'";
-fi
+# Warning message before proceeding
+echo -e "\033[0;31mWARNING: Running this setup script after one successful run will delete any existing DAGs data.\033[0m" # Red text for warning
+sleep 5
 
-if [ -z ${LOCAL_DATA_PATH+x} ];
-  then echo "LOCAL_DATA_PATH is unset" && exit 1;
-  else echo "LOCAL_DATA_PATH is set to '$LOCAL_DATA_PATH'";
-fi
+for var in LOCAL_DAGS_PATH LOCAL_DATA_PATH; do
+    if [ -z "${!var+x}" ]; then
+        echo "$var is unset. Please set the path for the $var using 'export $var=...'"
+        exit 1
+    else
+        echo "$var is set to '${!var}'"
+    fi
+done
 
-handle_error() {
-    echo "Error: $1" && exit 1;
+# Function to update paths in YAML using yq
+update_yaml_path() {
+    local host_path="$1"
+    local container_path="$2"
+    local yaml_file="$3"
+    local index_row="$4"
+
+    if ! yq -i "
+    .nodes[1].extraMounts[$index_row].hostPath = \"$host_path\" |
+    .nodes[1].extraMounts[$index_row].containerPath = \"$container_path\" |
+    .nodes[2].extraMounts[$index_row].hostPath = \"$host_path\" |
+    .nodes[2].extraMounts[$index_row].containerPath = \"$container_path\" |
+    .nodes[3].extraMounts[$index_row].hostPath = \"$host_path\" |
+    .nodes[3].extraMounts[$index_row].containerPath = \"$container_path\"
+    " "$yaml_file"; then
+        echo "Failed to update YAML configuration for $host_path" && exit 1;
+    fi
 }
 
-if ! yq -i "
-.nodes[1].extraMounts[0].hostPath = \"$LOCAL_DAGS_PATH\" |
-.nodes[1].extraMounts[0].containerPath = \"/tmp/dags\"  |
-.nodes[2].extraMounts[0].hostPath = \"$LOCAL_DAGS_PATH\" |
-.nodes[2].extraMounts[0].containerPath = \"/tmp/dags\"  |
-.nodes[3].extraMounts[0].hostPath = \"$LOCAL_DAGS_PATH\" |
-.nodes[3].extraMounts[0].containerPath = \"/tmp/dags\"
-" kind-cluster.yaml; then
-    handle_error
-fi
-
-if ! yq -i "
-.nodes[1].extraMounts[1].hostPath = \"$LOCAL_DATA_PATH\" |
-.nodes[1].extraMounts[1].containerPath = \"/tmp/data\"  |
-.nodes[2].extraMounts[1].hostPath = \"$LOCAL_DATA_PATH\" |
-.nodes[2].extraMounts[1].containerPath = \"/tmp/data\"  |
-.nodes[3].extraMounts[1].hostPath = \"$LOCAL_DATA_PATH\" |
-.nodes[3].extraMounts[1].containerPath = \"/tmp/data\"
-" kind-cluster.yaml; then
-    handle_error
-fi
+update_yaml_path "$LOCAL_DAGS_PATH" "/tmp/dags" "kind-cluster.yaml" 0
+update_yaml_path "$LOCAL_DATA_PATH" "/tmp/data" "kind-cluster.yaml" 1
 
 if ! kind create cluster --name airflow-cluster --config kind-cluster.yaml; then
-    echo "Error: $1"
-    echo "Deleting..."
+    echo -e "\033[0;31mError: ${1:-"An unexpected error occurred"}\033[0m" # Red text for errors
     docker rm --force airflow-cluster-control-plane
     docker rm --force airflow-cluster-worker
     docker rm --force airflow-cluster-worker2
     docker rm --force airflow-cluster-worker3
-    echo "`./setup.sh` again" && exit 1;
+    echo "Deleted all nodes! Please run the script again..."
+    exit 1
 fi
 
 kubectl create namespace airflow
 kubectl config set-context airflow --namespace=airflow
-kubectl -n airflow create secret generic my-webserver-secret --from-literal="webserver-secret-key=$(python3 -c 'import secrets; print(secrets.token_hex(16))')" || handle_error
-kubectl apply -f sc.yaml
+kubectl -n airflow create secret generic my-webserver-secret --from-literal="webserver-secret-key=$(python3 -c 'import secrets; print(secrets.token_hex(16))')" || handle_error "Failed to create secret"
+
+kubectl apply -f sc.yaml 
 kubectl apply -f volumes.yaml
+
 helm repo add apache-airflow https://airflow.apache.org 
 helm repo update
 helm search repo airflow
 helm upgrade --install airflow apache-airflow/airflow -n airflow -f values.yaml --debug
+
+echo "give it some time before checking the status of the pods..."
+sleep 30
+kubectl get pods
