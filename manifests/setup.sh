@@ -16,7 +16,7 @@ if ! yq -i "
 .nodes[2].extraMounts[1].containerPath = \"/tmp/dags\"  |
 .nodes[3].extraMounts[1].hostPath = \"$LOCAL_DAGS_PATH\" |
 .nodes[3].extraMounts[1].containerPath = \"/tmp/dags\"
-" ../kind-cluster.yaml; then
+" kind-cluster.yaml; then
     handle_error
 fi
 
